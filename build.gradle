@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.7.1'
+    id 'fabric-loom' version '1.8.13'
     id 'maven-publish'
 }
 
@@ -74,9 +74,9 @@ jar {
 // configure the maven publication
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
+//        mavenJava(MavenPublication) {
+//            from components.java
+//        }
     }
 
     // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.

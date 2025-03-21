@@ -175,17 +175,23 @@ public class ColorDimmer {
 
         @Override
         public float getR() {
-            return ColorHelper.floatFromChannel(ColorHelper.getRed(argb));
+            return floatFromChannel(ColorHelper.getRed(argb));
         }
 
         @Override
         public float getG() {
-            return ColorHelper.floatFromChannel(ColorHelper.getGreen(argb));
+            return floatFromChannel(ColorHelper.getGreen(argb));
         }
 
         @Override
         public float getB() {
-            return ColorHelper.floatFromChannel(ColorHelper.getBlue(argb));
+            return floatFromChannel(ColorHelper.getBlue(argb));
+        }
+
+        // why tf did minecraft decide to change a utility method to private??
+        // from ColorHelper.floatFromChannel(int)
+        private static float floatFromChannel(int channel) {
+            return (float) channel / 255.0F;
         }
 
     }
