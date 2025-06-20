@@ -160,6 +160,7 @@ public class ColorDimmer {
         }
 
         void setResult(float r, float g, float b) {
+            // change 0 to 1 to prevent div by 0 issue in shader packs.
             int ir = Math.max(1, (int) (r * 255.0F));
             int ig = Math.max(1, (int) (g * 255.0F));
             int ib = Math.max(1, (int) (b * 255.0F));
