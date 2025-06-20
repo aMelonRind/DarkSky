@@ -7,7 +7,6 @@ import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import dev.isxander.yacl3.gui.image.ImageRenderer;
 import io.github.amelonrind.darksky.ColorDimmer;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Contract;
@@ -112,7 +111,6 @@ public class ModMenuApiImpl implements ModMenuApi {
     }
 
     public static class ColorPreview implements ImageRenderer {
-        private static final MinecraftClient mc = MinecraftClient.getInstance();
         public int color = 0;
 
         public void setColor(float r, float g, float b) {
@@ -128,14 +126,7 @@ public class ModMenuApiImpl implements ModMenuApi {
 
         @Override
         public int render(@NotNull DrawContext context, int x, int y, int renderWidth, float tickDelta) {
-            // I can't figure out how to render a square, so I rendered a square character instead.
-            context.getMatrices().push();
-            context.getMatrices().translate(x, y, 0);
-            float scale = (float) renderWidth / 8.0f;
-            boolean doubleWidth = mc.options.getForceUnicodeFont().getValue();
-            context.getMatrices().scale(doubleWidth ? scale * 2 : scale, scale, 1.0f);
-            context.drawText(mc.textRenderer, "█", 0, 0, color, false);
-            context.getMatrices().pop();
+            context.fill(x, y, x + renderWidth, y + renderWidth, color | 0xFF000000);
             return renderWidth;
         }
 
