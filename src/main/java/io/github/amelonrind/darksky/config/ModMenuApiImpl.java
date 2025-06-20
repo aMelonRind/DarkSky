@@ -1,6 +1,5 @@
 package io.github.amelonrind.darksky.config;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl3.api.*;
@@ -8,15 +7,11 @@ import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import dev.isxander.yacl3.gui.image.ImageRenderer;
 import io.github.amelonrind.darksky.ColorDimmer;
-import net.minecraft.client.gl.ShaderProgram;
-import net.minecraft.client.gl.ShaderProgramKeys;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -117,51 +112,30 @@ public class ModMenuApiImpl implements ModMenuApi {
     }
 
     public static class ColorPreview implements ImageRenderer {
-        public int r = 0;
-        public int g = 0;
-        public int b = 0;
+        private static final MinecraftClient mc = MinecraftClient.getInstance();
+        public int color = 0;
 
         public void setColor(float r, float g, float b) {
-            this.r = (int) (r * 255);
-            this.g = (int) (g * 255);
-            this.b = (int) (b * 255);
+            int ir = (int) (r * 255);
+            int ig = (int) (g * 255);
+            int ib = (int) (b * 255);
+            color = (ir << 16) + (ig << 8) + ib;
         }
 
         public int getColor() {
-            return (r << 16) + (g << 8) + b;
+            return color;
         }
 
         @Override
-        public int render(@NotNull DrawContext context, int x1, int y1, int renderWidth, float tickDelta) {
-            ShaderProgram origShader = RenderSystem.getShader();
-//            RenderSystem.setShader(GameRenderer::getPositionColorProgram); // pre 1.21.2
-            if (RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR) != null) {
-                MatrixStack matrices = context.getMatrices();
-                matrices.push();
-
-                Tessellator tess = Tessellator.getInstance();
-//                BufferBuilder buf = tess.getBuffer();
-
-                RenderSystem.disableBlend();
-                RenderSystem.defaultBlendFunc();
-
-                BufferBuilder buf = tess.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR);
-                Matrix4f matrix = matrices.peek().getPositionMatrix();
-
-                int x2 = x1 + renderWidth;
-                int y2 = y1 + renderWidth;
-
-                buf.vertex(matrix, x1, y2, 0).color(r, g, b, 255);
-                buf.vertex(matrix, x2, y2, 0).color(r, g, b, 255);
-                buf.vertex(matrix, x1, y1, 0).color(r, g, b, 255);
-                buf.vertex(matrix, x2, y1, 0).color(r, g, b, 255);
-                BufferRenderer.drawWithGlobalProgram(buf.end());
-
-                matrices.pop();
-            }
-
-            RenderSystem.setShader(origShader);
-
+        public int render(@NotNull DrawContext context, int x, int y, int renderWidth, float tickDelta) {
+            // I can't figure out how to render a square, so I rendered a square character instead.
+            context.getMatrices().push();
+            context.getMatrices().translate(x, y, 0);
+            float scale = (float) renderWidth / 8.0f;
+            boolean doubleWidth = mc.options.getForceUnicodeFont().getValue();
+            context.getMatrices().scale(doubleWidth ? scale * 2 : scale, scale, 1.0f);
+            context.drawText(mc.textRenderer, "█", 0, 0, color, false);
+            context.getMatrices().pop();
             return renderWidth;
         }
 
