@@ -7,7 +7,6 @@ import io.github.amelonrind.darksky.ColorDimmer;
 import io.github.amelonrind.darksky.DarkSky;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 
 import static io.github.amelonrind.darksky.DarkSky.LOGGER;
@@ -36,10 +35,10 @@ public class Config {
     public int fogBri = -60;
 
     public void apply() {
-        skySat = MathHelper.clamp(skySat, -100, 200);
-        fogSat = MathHelper.clamp(fogSat, -100, 200);
-        skyBri = MathHelper.clamp(skyBri, -100, 200);
-        fogBri = MathHelper.clamp(fogBri, -100, 200);
+        skySat = clamp100200(skySat);
+        fogSat = clamp100200(fogSat);
+        skyBri = clamp100200(skyBri);
+        fogBri = clamp100200(fogBri);
         ColorDimmer.skySatFactor = skySat / 100.0f;
         ColorDimmer.fogSatFactor = fogSat / 100.0f;
         ColorDimmer.skyBriFactor = skyBri / 100.0f;
@@ -47,6 +46,10 @@ public class Config {
 
         DarkSky.enabled = enabled;
         LOGGER.info("[Dark Sky] applied config");
+    }
+
+    private static int clamp100200(int value) {
+        return Math.min(Math.max(value, -100), 200);
     }
 
     public Config write(@NotNull Config other) {

@@ -1,10 +1,10 @@
 package io.github.amelonrind.darksky;
 
-import net.minecraft.util.math.ColorHelper;
-import net.minecraft.util.math.MathHelper;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+// note for future me: don't use utility method from minecraft
+// for example, they made ColorHelper.floatFromChannel(int) private, breaks 1.21.4
 public class ColorDimmer {
     public static float skySatFactor = 1.0f;
     public static float fogSatFactor = 1.0f;
@@ -61,7 +61,11 @@ public class ColorDimmer {
     }
 
     private static float calculateMultiplier(float value, float factor, float impact) {
-        return MathHelper.clamp(value * (1.0f + factor * impact), 0.0f, 1.0f) / value;
+        return clamp01(value * (1.0f + factor * impact)) / value;
+    }
+
+    private static float clamp01(float value) {
+        return value < 0.0f ? 0.0f : Math.min(value, 1.0f);
     }
 
     @FunctionalInterface
@@ -156,11 +160,10 @@ public class ColorDimmer {
         }
 
         void setResult(float r, float g, float b) {
-            result = ColorHelper.getArgb(
-                    Math.max(1, ColorHelper.channelFromFloat(r)),
-                    Math.max(1, ColorHelper.channelFromFloat(g)),
-                    Math.max(1, ColorHelper.channelFromFloat(b))
-            );
+            int ir = Math.max(1, (int) (r * 255.0F));
+            int ig = Math.max(1, (int) (g * 255.0F));
+            int ib = Math.max(1, (int) (b * 255.0F));
+            result = (ir << 16) + (ig << 8) + ib;
         }
 
         @Override
@@ -175,23 +178,17 @@ public class ColorDimmer {
 
         @Override
         public float getR() {
-            return floatFromChannel(ColorHelper.getRed(argb));
+            return (float) ((argb >> 16) & 0xFF) / 255.0f;
         }
 
         @Override
         public float getG() {
-            return floatFromChannel(ColorHelper.getGreen(argb));
+            return (float) ((argb >> 8) & 0xFF) / 255.0f;
         }
 
         @Override
         public float getB() {
-            return floatFromChannel(ColorHelper.getBlue(argb));
-        }
-
-        // why tf did minecraft decide to change a utility method to private??
-        // from ColorHelper.floatFromChannel(int)
-        private static float floatFromChannel(int channel) {
-            return (float) channel / 255.0F;
+            return (float) (argb & 0xFF) / 255.0f;
         }
 
     }
