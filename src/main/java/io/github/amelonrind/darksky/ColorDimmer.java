@@ -28,19 +28,17 @@ public class ColorDimmer {
         );
     }
 
-    public static void dimSkyColor(CallbackInfoReturnable<Integer> cir) {
-        if (!DarkSky.enabled) return;
-        int color = cir.getReturnValueI();
+    public static int dimSkyColor(int color) {
+        if (!DarkSky.enabled) return color;
         if (lastSky.checkEquality(color)) {
-            cir.setReturnValue(lastSky.result);
-            return;
+            return lastSky.result;
         }
         lastSky.result = color;
         dimColor(lastSky.getR(), lastSky.getG(), lastSky.getB(), skyBriFactor, skySatFactor, (r, g, b) -> {
             lastSky.setResult(r, g, b);
             lastSky.result |= color & 0xFF000000;
-            cir.setReturnValue(lastSky.result);
         });
+        return lastSky.result;
     }
 
     public static void dimColor(float r, float g, float b, float briFactor, float satFactor, ColorConsumer consumer) {

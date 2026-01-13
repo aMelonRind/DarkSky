@@ -27,7 +27,7 @@
     "dark-sky.mixins.json"
   ],
   "depends": {
-    "minecraft": ">=1.21.6",
+    "minecraft": ">=1.21.11",
     "yet_another_config_lib_v3": "*"
   }
 }

@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(FogRenderer.class)
 public class MixinFogRenderer {
 
-    @Inject(method = "getFogColor", at = @At(value = "TAIL"), cancellable = true)
-    private void mutateFogColor(Camera camera, float tickProgress, ClientWorld world, int viewDistance, float skyDarkness, boolean thick, CallbackInfoReturnable<Vector4f> cir) {
+    @Inject(method = "getFogColor", at = @At(value = "RETURN"), cancellable = true)
+    private void mutateFogColor(Camera camera, float tickProgress, ClientWorld world, int viewDistance, float skyDarkness, CallbackInfoReturnable<Vector4f> cir) {
         ColorDimmer.dimFogColor(cir);
     }
 
