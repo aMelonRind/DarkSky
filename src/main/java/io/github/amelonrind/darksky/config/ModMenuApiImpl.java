@@ -7,8 +7,8 @@ import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import dev.isxander.yacl3.gui.image.ImageRenderer;
 import io.github.amelonrind.darksky.ColorDimmer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +20,7 @@ import java.util.function.Function;
 import static io.github.amelonrind.darksky.ColorDimmer.*;
 
 public class ModMenuApiImpl implements ModMenuApi {
-    private static final Text TEXT_NONE = Text.of("None");
+    private static final Component TEXT_NONE = Component.nullToEmpty("None");
     private static final CompletableFuture<Optional<ImageRenderer>> skyImage = new CompletableFuture<>();
     private static final CompletableFuture<Optional<ImageRenderer>> fogImage = new CompletableFuture<>();
     private static final ColorPreview skyColorPreview = new ColorPreview();
@@ -36,8 +36,8 @@ public class ModMenuApiImpl implements ModMenuApi {
     }
 
     @Contract(value = "_ -> new", pure = true)
-    private static @NotNull Text translate(String key) {
-        return Text.translatable("darkSky.config.entry." + key);
+    private static @NotNull Component translate(String key) {
+        return Component.translatable("darkSky.config.entry." + key);
     }
 
     private static Option<Integer> optionOf(String nameKey, Function<Config, Integer> getter, BiConsumer<Config, Integer> setter, boolean isSky) {
@@ -71,20 +71,20 @@ public class ModMenuApiImpl implements ModMenuApi {
                 .controller(option -> IntegerSliderControllerBuilder.create(option)
                         .range(-100, 200)
                         .step(1)
-                        .formatValue(v -> v == 0 ? TEXT_NONE : Text.of((v > 0 ? "+" : "") + v + "%")))
+                        .formatValue(v -> v == 0 ? TEXT_NONE : Component.nullToEmpty((v > 0 ? "+" : "") + v + "%")))
                 .build();
     }
 
     @Contract("_, _ -> new")
-    private static @NotNull Text formatColor(int from, int to) {
-        return Text.literal(String.format("#%06X -> #%06X", from, to));
+    private static @NotNull Component formatColor(int from, int to) {
+        return Component.literal(String.format("#%06X -> #%06X", from, to));
     }
 
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return p -> {
             cfg = Config.get().write(cfg4preview);
-            Text title = Text.translatable("darkSky.config.title");
+            Component title = Component.translatable("darkSky.config.title");
             return YetAnotherConfigLib.createBuilder()
                     .title(title)
                     .category(ConfigCategory.createBuilder()
@@ -125,14 +125,12 @@ public class ModMenuApiImpl implements ModMenuApi {
         }
 
         @Override
-        public int render(@NotNull DrawContext context, int x, int y, int renderWidth, float tickDelta) {
+        public int render(@NotNull GuiGraphicsExtractor context, int x, int y, int renderWidth, float tickDelta) {
             context.fill(x, y, x + renderWidth, y + renderWidth, color | 0xFF000000);
             return renderWidth;
         }
 
         @Override
         public void close() {}
-
     }
-
 }

@@ -16,5 +16,4 @@ public class DarkSky implements ClientModInitializer {
         Config.HANDLER.load();
         Config.get().apply();
     }
-
 }

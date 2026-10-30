@@ -6,14 +6,14 @@ import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import io.github.amelonrind.darksky.ColorDimmer;
 import io.github.amelonrind.darksky.DarkSky;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import static io.github.amelonrind.darksky.DarkSky.LOGGER;
 
 public class Config {
     public static final ConfigClassHandler<Config> HANDLER = ConfigClassHandler.createBuilder(Config.class)
-            .id(Identifier.of(DarkSky.MOD_ID, "main"))
+            .id(Identifier.fromNamespaceAndPath(DarkSky.MOD_ID, "main"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
                     .setPath(FabricLoader.getInstance().getConfigDir().resolve(DarkSky.MOD_ID + ".json"))
                     .build())
@@ -39,17 +39,14 @@ public class Config {
         fogSat = clamp100200(fogSat);
         skyBri = clamp100200(skyBri);
         fogBri = clamp100200(fogBri);
-        ColorDimmer.skySatFactor = skySat / 100.0f;
-        ColorDimmer.fogSatFactor = fogSat / 100.0f;
-        ColorDimmer.skyBriFactor = skyBri / 100.0f;
-        ColorDimmer.fogBriFactor = fogBri / 100.0f;
+        ColorDimmer.onConfig(skySat, fogSat, skyBri, fogBri);
 
         DarkSky.enabled = enabled;
         LOGGER.info("[Dark Sky] applied config");
     }
 
     private static int clamp100200(int value) {
-        return Math.min(Math.max(value, -100), 200);
+        return Math.clamp(value, -100, 200);
     }
 
     public Config write(@NotNull Config other) {
@@ -60,5 +57,4 @@ public class Config {
         other.fogBri = fogBri;
         return this;
     }
-
 }

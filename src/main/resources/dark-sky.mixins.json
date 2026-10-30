@@ -5,7 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "MixinFogRenderer",
-    "MixinSkyRendering"
+    "MixinSkyRenderer"
   ],
   "injectors": {
     "defaultRequire": 1
